@@ -1,0 +1,62 @@
+For a given set of training data examples stred in .csv file, implement and demoostrate the Find-s algorithm to output a description of the set of all hypothesis consistent with the training examples.
+
+import pandas as pd
+
+def find_s_algorithm(file_path):
+    data = pd.read_csv(file_path)
+    print(data)
+    attributes = data.columns[:-1]
+    target = data.columns[-1]
+    
+    hypothesis = [None] * len(attributes)
+    
+    for _, row in data.iterrows():
+        if str(row[target]).lower() == 'yes':
+            row_values = row[attributes].tolist()
+            
+            for i in range(len(attributes)):
+                if hypothesis[i] is None:
+                    hypothesis[i] = row_values[i]
+                elif hypothesis[i] != row_values[i]:
+                    hypothesis[i] = '?'
+                    
+    return hypothesis
+
+file_path = 'training_data.csv'  # Replace with your actual file path
+final_hypothesis = find_s_algorithm(file_path)
+
+print("Final Hypothesis:", final_hypothesis)
+
+
+
+file_path_tennis = 'play_tennis.csv'
+final_hypothesis_tennis = find_s_algorithm(file_path_tennis)
+print("Final Hypothesis (Play Tennis):", final_hypothesis_tennis)
+
+from sklearn import datasets
+import pandas as pd
+
+# Import Iris dataset
+iris = datasets.load_iris()
+iris_df = pd.DataFrame(data=iris.data, columns=iris.feature_names)
+# Convert continuous data to categorical (Small/Medium/Large) for Find-S
+for col in iris_df.columns:
+    iris_df[col] = pd.qcut(iris_df[col], q=3, labels=["Small", "Medium", "Large"])
+
+iris_df['target'] = iris.target
+# Find-S only works for binary classification, let's pick one class (e.g., setosa vs others)
+# Since Find-S learns from positive examples, we treat 'target 0' as 'Yes'
+iris_df['target'] = iris_df['target'].apply(lambda x: 'Yes' if x == 0 else 'No')
+
+# Save to CSV to use with the existing function
+iris_csv_path = 'iris_dataset.csv'
+iris_df.to_csv(iris_csv_path, index=False)
+
+
+
+# Run Find-S
+final_hypothesis_iris = find_s_algorithm(iris_csv_path)
+
+
+print("Final Hypothesis (Iris - Setosa):", final_hypothesis_iris)
+
